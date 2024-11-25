@@ -11,9 +11,5 @@ namespace RegistrationManagementAPI.Entities
         public string Address { get; set; }
         public string ParentName { get; set; }
         public string ParentPhoneNumber { get; set; }
-
-        // Relationships
-        public ICollection<Registration> Registrations { get; set; }
-        public ICollection<Payment> Payments { get; set; }
     }
 }

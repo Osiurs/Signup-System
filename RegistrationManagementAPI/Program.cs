@@ -1,20 +1,38 @@
 using RegistrationManagementAPI.Services;
 using RegistrationManagementAPI.Data;
+using RegistrationManagementAPI.Repositories.Implementation;
+using RegistrationManagementAPI.Repositories.Interface;
+using RegistrationManagementAPI.Services.Implementation;
+using RegistrationManagementAPI.Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using RegistrationManagementAPI.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 // Add services to the container.
-// Thêm DbContext vào container để sử dụng cho toàn bộ ứng dụng
+// Add DbContext (assuming you're using Entity Framework)
 builder.Services.AddDbContext<NVHTNQ10DbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Đăng ký các service (dependency injection)
+// Register repositories and services with dependency injection
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
+
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
+
+
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+
+builder.Services.AddScoped<IClassroomRepository, ClassroomRepository>();
 builder.Services.AddScoped<IClassroomService, ClassroomService>();
+
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+
 
 // Add controllers and other services
 builder.Services.AddControllers();
@@ -22,6 +40,8 @@ builder.Services.AddControllers();
 // Add Swagger if needed (for API documentation)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 var app = builder.Build();
 

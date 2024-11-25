@@ -1,63 +1,74 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using RegistrationManagementAPI.Entities;
-using RegistrationManagementAPI.Data;  // Giả định DbContext của bạn nằm trong thư mục Data
+using RegistrationManagementAPI.Repositories.Interface;
+using RegistrationManagementAPI.Services.Interface;
 
-namespace RegistrationManagementAPI.Services
+namespace RegistrationManagementAPI.Services.Implementation
 {
     public class StudentService : IStudentService
     {
-        private readonly NVHTNQ10DbContext _context;
+        private readonly IStudentRepository _studentRepository;
 
-        public StudentService(NVHTNQ10DbContext context)
+        public StudentService(IStudentRepository studentRepository)
         {
-            _context = context;
+            _studentRepository = studentRepository;
         }
 
         public async Task<IEnumerable<Student>> GetAllStudentsAsync()
         {
-            return await _context.Students.ToListAsync();
+            return await _studentRepository.GetAllStudentsAsync();
         }
 
         public async Task<Student> GetStudentByIdAsync(int id)
         {
-            return await _context.Students.FindAsync(id);
+            var student = await _studentRepository.GetStudentByIdAsync(id);
+            if (student == null)
+            {
+                throw new InvalidOperationException("Student not found.");
+            }
+            return student;
         }
 
         public async Task<Student> AddStudentAsync(Student student)
         {
-            _context.Students.Add(student);
-            await _context.SaveChangesAsync();
-            return student;
+            if (string.IsNullOrWhiteSpace(student.FirstName) || string.IsNullOrWhiteSpace(student.LastName))
+            {
+                throw new ArgumentException("First name and last name are required.");
+            }
+
+            var existingStudents = await _studentRepository.GetAllStudentsAsync();
+            if (existingStudents.Any(s => s.Email == student.Email))
+            {
+                throw new InvalidOperationException("Email already exists.");
+            }
+
+            return await _studentRepository.AddStudentAsync(student);
         }
 
-        public async Task<Student> UpdateStudentAsync(int id, Student student)
+        public async Task UpdateStudentAsync(int id, Student student)
         {
-            var existingStudent = await _context.Students.FindAsync(id);
+            var existingStudent = await _studentRepository.GetStudentByIdAsync(id);
             if (existingStudent == null)
             {
-                return null;
+                throw new InvalidOperationException("Student not found.");
             }
 
             existingStudent.FirstName = student.FirstName;
             existingStudent.LastName = student.LastName;
-            existingStudent.PhoneNumber = student.PhoneNumber;
             existingStudent.Email = student.Email;
-            existingStudent.ParentName = student.ParentName;
+            existingStudent.DateOfBirth = student.DateOfBirth;
 
-            await _context.SaveChangesAsync();
-            return existingStudent;
+            await _studentRepository.UpdateStudentAsync(existingStudent);
         }
 
         public async Task DeleteStudentAsync(int id)
         {
-            var student = await _context.Students.FindAsync(id);
-            if (student != null)
+            var student = await _studentRepository.GetStudentByIdAsync(id);
+            if (student == null)
             {
-                _context.Students.Remove(student);
-                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Student not found.");
             }
+
+            await _studentRepository.DeleteStudentAsync(id);
         }
     }
 }

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using RegistrationManagementAPI.Services;
 using RegistrationManagementAPI.Entities;
+using RegistrationManagementAPI.Services.Interface;
 
 namespace RegistrationManagementAPI.Controllers
 {
@@ -15,7 +15,6 @@ namespace RegistrationManagementAPI.Controllers
             _studentService = studentService;
         }
 
-        // Lấy danh sách tất cả học viên
         [HttpGet]
         public async Task<IActionResult> GetAllStudents()
         {
@@ -23,60 +22,64 @@ namespace RegistrationManagementAPI.Controllers
             return Ok(students);
         }
 
-        // Lấy thông tin chi tiết của một học viên theo ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetStudentById(int id)
         {
-            var student = await _studentService.GetStudentByIdAsync(id);
-            if (student == null)
+            try
             {
-                return NotFound(new { message = "Student not found" });
+                var student = await _studentService.GetStudentByIdAsync(id);
+                return Ok(student);
             }
-            return Ok(student);
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
 
-        // Thêm học viên mới
         [HttpPost]
         public async Task<IActionResult> AddStudent([FromBody] Student student)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var newStudent = await _studentService.AddStudentAsync(student);
+                return CreatedAtAction(nameof(GetStudentById), new { id = newStudent.StudentId }, newStudent);
             }
-
-            var newStudent = await _studentService.AddStudentAsync(student);
-            return CreatedAtAction(nameof(GetStudentById), new { id = newStudent.StudentId }, newStudent);
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        // Cập nhật thông tin học viên
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateStudent(int id, [FromBody] Student student)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                await _studentService.UpdateStudentAsync(id, student);
+                return NoContent();
             }
-
-            var updatedStudent = await _studentService.UpdateStudentAsync(id, student);
-            if (updatedStudent == null)
+            catch (InvalidOperationException ex)
             {
-                return NotFound(new { message = "Student not found" });
+                return NotFound(new { message = ex.Message });
             }
-            return Ok(updatedStudent);
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        // Xóa học viên
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStudent(int id)
         {
-            var existingStudent = await _studentService.GetStudentByIdAsync(id);
-            if (existingStudent == null)
+            try
             {
-                return NotFound(new { message = "Student not found" });
+                await _studentService.DeleteStudentAsync(id);
+                return NoContent();
             }
-
-            await _studentService.DeleteStudentAsync(id);
-            return NoContent();
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }

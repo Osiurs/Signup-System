@@ -1,33 +1,82 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using RegistrationManagementAPI.Entities;
-using RegistrationManagementAPI.Data;
+using RegistrationManagementAPI.Repositories.Interface;
+using RegistrationManagementAPI.Services.Interface;
 
-namespace RegistrationManagementAPI.Services
+namespace RegistrationManagementAPI.Services.Implementation
 {
     public class PaymentService : IPaymentService
     {
-        private readonly NVHTNQ10DbContext _context;
+        private readonly IPaymentRepository _paymentRepository;
 
-        public PaymentService(NVHTNQ10DbContext context)
+        public PaymentService(IPaymentRepository paymentRepository)
         {
-            _context = context;
+            _paymentRepository = paymentRepository;
+        }
+
+        public async Task<IEnumerable<Payment>> GetAllPaymentsAsync()
+        {
+            return await _paymentRepository.GetAllPaymentsAsync();
         }
 
         public async Task<IEnumerable<Payment>> GetPaymentsByStudentIdAsync(int studentId)
         {
-            return await _context.Payments
-                .Where(p => p.StudentId == studentId)
-                .Include(p => p.Registration)
-                .ToListAsync();
+            return await _paymentRepository.GetPaymentsByStudentIdAsync(studentId);
+        }
+
+        public async Task<IEnumerable<Payment>> GetPaymentsByRegistrationIdAsync(int registrationId)
+        {
+            return await _paymentRepository.GetPaymentsByRegistrationIdAsync(registrationId);
+        }
+
+        public async Task<Payment> GetPaymentByIdAsync(int id)
+        {
+            var payment = await _paymentRepository.GetPaymentByIdAsync(id);
+            if (payment == null)
+            {
+                throw new InvalidOperationException("Payment not found.");
+            }
+            return payment;
         }
 
         public async Task<Payment> AddPaymentAsync(Payment payment)
         {
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
-            return payment;
+            if (payment.Amount <= 0)
+            {
+                throw new ArgumentException("Payment amount must be greater than zero.");
+            }
+
+            if (payment.PaymentDate > DateTime.UtcNow)
+            {
+                throw new ArgumentException("Payment date cannot be in the future.");
+            }
+
+            return await _paymentRepository.AddPaymentAsync(payment);
+        }
+
+        public async Task UpdatePaymentAsync(int id, Payment payment)
+        {
+            var existingPayment = await _paymentRepository.GetPaymentByIdAsync(id);
+            if (existingPayment == null)
+            {
+                throw new InvalidOperationException("Payment not found.");
+            }
+
+            existingPayment.Amount = payment.Amount;
+            existingPayment.PaymentDate = payment.PaymentDate;
+            existingPayment.PaymentMethod = payment.PaymentMethod;
+
+            await _paymentRepository.UpdatePaymentAsync(existingPayment);
+        }
+
+        public async Task DeletePaymentAsync(int id)
+        {
+            var payment = await _paymentRepository.GetPaymentByIdAsync(id);
+            if (payment == null)
+            {
+                throw new InvalidOperationException("Payment not found.");
+            }
+
+            await _paymentRepository.DeletePaymentAsync(id);
         }
     }
 }

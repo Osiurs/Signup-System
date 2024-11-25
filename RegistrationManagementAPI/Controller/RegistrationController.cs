@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using RegistrationManagementAPI.Services;
 using RegistrationManagementAPI.Entities;
+using RegistrationManagementAPI.Services.Interface;
 
 namespace RegistrationManagementAPI.Controllers
 {
@@ -15,39 +15,71 @@ namespace RegistrationManagementAPI.Controllers
             _registrationService = registrationService;
         }
 
-        // Lấy danh sách đăng ký của một học viên theo ID học viên
-        [HttpGet("student/{studentId}")]
-        public async Task<IActionResult> GetRegistrationsByStudentId(int studentId)
+        [HttpGet]
+        public async Task<IActionResult> GetAllRegistrations()
         {
-            var registrations = await _registrationService.GetRegistrationsByStudentIdAsync(studentId);
+            var registrations = await _registrationService.GetAllRegistrationsAsync();
             return Ok(registrations);
         }
 
-        // Đăng ký khóa học mới cho học viên
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetRegistrationById(int id)
+        {
+            try
+            {
+                var registration = await _registrationService.GetRegistrationByIdAsync(id);
+                return Ok(registration);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddRegistration([FromBody] Registration registration)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var newRegistration = await _registrationService.AddRegistrationAsync(registration);
+                return CreatedAtAction(nameof(GetRegistrationById), new { id = newRegistration.RegistrationId }, newRegistration);
             }
-
-            var newRegistration = await _registrationService.AddRegistrationAsync(registration);
-            return CreatedAtAction(nameof(GetRegistrationsByStudentId), new { studentId = registration.StudentId }, newRegistration);
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        // Cập nhật trạng thái đăng ký khóa học (Pending, Confirmed, Canceled)
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRegistrationStatus(int id, [FromBody] string status)
+        public async Task<IActionResult> UpdateRegistration(int id, [FromBody] Registration registration)
         {
-            var registration = await _registrationService.GetRegistrationsByStudentIdAsync(id);
-            if (registration == null)
+            try
             {
-                return NotFound(new { message = "Registration not found" });
+                await _registrationService.UpdateRegistrationAsync(id, registration);
+                return NoContent();
             }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
-            await _registrationService.UpdateRegistrationStatusAsync(id, status);
-            return Ok(new { message = "Registration status updated successfully" });
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRegistration(int id)
+        {
+            try
+            {
+                await _registrationService.DeleteRegistrationAsync(id);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }

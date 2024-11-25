@@ -1,43 +1,77 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using RegistrationManagementAPI.Entities;
-using RegistrationManagementAPI.Data;
+using RegistrationManagementAPI.Repositories.Interface;
+using RegistrationManagementAPI.Services.Interface;
 
-namespace RegistrationManagementAPI.Services
+namespace RegistrationManagementAPI.Services.Implementation
 {
     public class RegistrationService : IRegistrationService
     {
-        private readonly NVHTNQ10DbContext _context;
+        private readonly IRegistrationRepository _registrationRepository;
 
-        public RegistrationService(NVHTNQ10DbContext context)
+        public RegistrationService(IRegistrationRepository registrationRepository)
         {
-            _context = context;
+            _registrationRepository = registrationRepository;
+        }
+
+        public async Task<IEnumerable<Registration>> GetAllRegistrationsAsync()
+        {
+            return await _registrationRepository.GetAllRegistrationsAsync();
+        }
+
+        public async Task<Registration> GetRegistrationByIdAsync(int id)
+        {
+            var registration = await _registrationRepository.GetRegistrationByIdAsync(id);
+            if (registration == null)
+            {
+                throw new InvalidOperationException("Registration not found.");
+            }
+            return registration;
         }
 
         public async Task<IEnumerable<Registration>> GetRegistrationsByStudentIdAsync(int studentId)
         {
-            return await _context.Registrations
-                .Where(r => r.StudentId == studentId)
-                .Include(r => r.Course)
-                .ToListAsync();
+            return await _registrationRepository.GetRegistrationsByStudentIdAsync(studentId);
+        }
+
+        public async Task<IEnumerable<Registration>> GetRegistrationsByCourseIdAsync(int courseId)
+        {
+            return await _registrationRepository.GetRegistrationsByCourseIdAsync(courseId);
         }
 
         public async Task<Registration> AddRegistrationAsync(Registration registration)
         {
-            _context.Registrations.Add(registration);
-            await _context.SaveChangesAsync();
-            return registration;
+            if (registration.RegistrationDate < DateTime.UtcNow)
+            {
+                throw new ArgumentException("Registration date cannot be in the past.");
+            }
+
+            return await _registrationRepository.AddRegistrationAsync(registration);
         }
 
-        public async Task UpdateRegistrationStatusAsync(int registrationId, string status)
+        public async Task UpdateRegistrationAsync(int id, Registration registration)
         {
-            var registration = await _context.Registrations.FindAsync(registrationId);
-            if (registration != null)
+            var existingRegistration = await _registrationRepository.GetRegistrationByIdAsync(id);
+            if (existingRegistration == null)
             {
-                registration.Status = status;
-                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Registration not found.");
             }
+
+            existingRegistration.CourseId = registration.CourseId;
+            existingRegistration.Status = registration.Status;
+            existingRegistration.RegistrationDate = registration.RegistrationDate;
+
+            await _registrationRepository.UpdateRegistrationAsync(existingRegistration);
+        }
+
+        public async Task DeleteRegistrationAsync(int id)
+        {
+            var registration = await _registrationRepository.GetRegistrationByIdAsync(id);
+            if (registration == null)
+            {
+                throw new InvalidOperationException("Registration not found.");
+            }
+
+            await _registrationRepository.DeleteRegistrationAsync(id);
         }
     }
 }

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using RegistrationManagementAPI.Services;
 using RegistrationManagementAPI.Entities;
+using RegistrationManagementAPI.Services.Interface;
 
 namespace RegistrationManagementAPI.Controllers
 {
@@ -15,7 +15,6 @@ namespace RegistrationManagementAPI.Controllers
             _courseService = courseService;
         }
 
-        // Lấy danh sách tất cả khóa học
         [HttpGet]
         public async Task<IActionResult> GetAllCourses()
         {
@@ -23,60 +22,64 @@ namespace RegistrationManagementAPI.Controllers
             return Ok(courses);
         }
 
-        // Lấy thông tin chi tiết của một khóa học theo ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCourseById(int id)
         {
-            var course = await _courseService.GetCourseByIdAsync(id);
-            if (course == null)
+            try
             {
-                return NotFound(new { message = "Course not found" });
+                var course = await _courseService.GetCourseByIdAsync(id);
+                return Ok(course);
             }
-            return Ok(course);
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
 
-        // Thêm khóa học mới
         [HttpPost]
         public async Task<IActionResult> AddCourse([FromBody] Course course)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var newCourse = await _courseService.AddCourseAsync(course);
+                return CreatedAtAction(nameof(GetCourseById), new { id = newCourse.CourseId }, newCourse);
             }
-
-            var newCourse = await _courseService.AddCourseAsync(course);
-            return CreatedAtAction(nameof(GetCourseById), new { id = newCourse.CourseId }, newCourse);
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        // Cập nhật thông tin khóa học
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateCourse(int id, [FromBody] Course course)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                await _courseService.UpdateCourseAsync(id, course);
+                return NoContent();
             }
-
-            var updatedCourse = await _courseService.UpdateCourseAsync(id, course);
-            if (updatedCourse == null)
+            catch (InvalidOperationException ex)
             {
-                return NotFound(new { message = "Course not found" });
+                return NotFound(new { message = ex.Message });
             }
-            return Ok(updatedCourse);
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
-        // Xóa khóa học
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            var existingCourse = await _courseService.GetCourseByIdAsync(id);
-            if (existingCourse == null)
+            try
             {
-                return NotFound(new { message = "Course not found" });
+                await _courseService.DeleteCourseAsync(id);
+                return NoContent();
             }
-
-            await _courseService.DeleteCourseAsync(id);
-            return NoContent();
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
     }
 }
