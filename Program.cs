@@ -14,6 +14,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
+//Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 // Add DbContext (Entity Framework Core)
 builder.Services.AddDbContext<NVHTNQ10DbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -95,6 +106,8 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 var app = builder.Build();
 
+app.UseCors("AllowAllOrigins");
+
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
@@ -105,6 +118,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Add Authentication and Authorization Middleware
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 

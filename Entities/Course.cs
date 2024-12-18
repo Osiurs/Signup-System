@@ -8,6 +8,8 @@ namespace RegistrationManagementAPI.Entities
         public decimal Price { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public int ViewCount { get; set; }
+        public string ImageUrl { get; set; }
         
         // Relationships
         public int TeacherId { get; set; }

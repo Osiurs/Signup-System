@@ -82,5 +82,32 @@ namespace RegistrationManagementAPI.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        [HttpGet("featured")]
+        public async Task<ActionResult<IEnumerable<CourseDTO>>> GetFeaturedCourses()
+        {
+            var courses = await _courseService.GetFeaturedCoursesAsync();
+
+            if (courses == null || !courses.Any())
+            {
+                return NotFound("No featured courses available at the moment.");
+            }
+
+            return Ok(courses);
+        }
+
+        [HttpPut("increment-view/{id}")]
+        public async Task<IActionResult> IncrementViewCount(int id)
+        {
+            var updatedCourse = await _courseService.IncrementViewCountAsync(id);
+
+            if (updatedCourse == null)
+            {
+                return NotFound("Course not found or failed to update the view count.");
+            }
+
+            return Ok(updatedCourse); // Trả về đối tượng Course đã được cập nhật
+        }
+
     }
 }

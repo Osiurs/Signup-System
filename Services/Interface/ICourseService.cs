@@ -10,5 +10,7 @@ namespace RegistrationManagementAPI.Services.Interface
         Task<CourseDTO> AddCourseAsync(CourseDTO courseDto);
         Task<CourseDTO> UpdateCourseAsync(int id, CourseDTO courseDto);
         Task DeleteCourseAsync(int id);
+        Task<IEnumerable<CourseDTO>> GetFeaturedCoursesAsync();
+        Task<Course> IncrementViewCountAsync(int courseId);
     }
 }

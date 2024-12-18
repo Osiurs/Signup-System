@@ -10,5 +10,6 @@ namespace RegistrationManagementAPI.Repositories.Interface
         Task<Course> AddCourseAsync(Course course);
         Task<Course> UpdateCourseAsync(Course course);
         Task DeleteCourseAsync(int id);
+        Task<IEnumerable<Course>> GetFeaturedCoursesAsync();
     }
 }

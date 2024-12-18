@@ -104,5 +104,37 @@ namespace RegistrationManagementAPI.Services.Implementation
 
             await _courseRepository.DeleteCourseAsync(id);
         }
+
+        public async Task<IEnumerable<CourseDTO>> GetFeaturedCoursesAsync()
+        {
+            var courses = await _courseRepository.GetFeaturedCoursesAsync();
+
+            // Map từ Entity sang DTO
+            return courses.Select(c => new CourseDTO
+            {
+                CourseId = c.CourseId,
+                CourseName = c.CourseName,
+                Description = c.Description ?? "No description available", // Nếu Description null
+                Price = c.Price,
+                StartDate = c.StartDate,
+                EndDate = c.EndDate,
+                TeacherId = c.TeacherId,
+                ImageUrl = c.ImageUrl
+            });
+        }
+
+        public async Task<Course> IncrementViewCountAsync(int courseId)
+        {
+            var course = await _courseRepository.GetCourseByIdAsync(courseId);
+
+            if (course == null)
+            {
+                return null; // Nếu không tìm thấy khóa học
+            }
+
+            course.ViewCount += 1; // Tăng ViewCount lên 1
+
+            return await _courseRepository.UpdateCourseAsync(course); // Cập nhật khóa học và trả về đối tượng đã cập nhật
+        }
     }
 }

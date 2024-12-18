@@ -54,5 +54,14 @@ namespace RegistrationManagementAPI.Repositories.Implementation
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<Course>> GetFeaturedCoursesAsync()
+        {
+            return await _context.Courses
+                                 .OrderByDescending(c => c.ViewCount) // Sắp xếp theo lượt truy cập giảm dần
+                                 .Take(5)                             // Lấy 5 khóa học
+                                 .Include(c => c.Teacher)             // Bao gồm thông tin giảng viên nếu cần
+                                 .ToListAsync();
+        }
     }
 }
