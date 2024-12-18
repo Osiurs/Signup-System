@@ -5,7 +5,9 @@ namespace RegistrationManagementAPI.Data
 {
         public class NVHTNQ10DbContext : DbContext
     {
-        public NVHTNQ10DbContext(DbContextOptions<NVHTNQ10DbContext> options) : base(options) { }
+        public NVHTNQ10DbContext(DbContextOptions<NVHTNQ10DbContext> options) : base(options) {
+            
+         }
 
         public DbSet<Student> Students { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
@@ -17,5 +19,16 @@ namespace RegistrationManagementAPI.Data
         public DbSet<Attendance> Attendances { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Message> Messages { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Course>()
+                .HasOne(c => c.Teacher)
+                .WithMany(t => t.Courses)
+                .HasForeignKey(c => c.TeacherId);
+        }
+
+
     }
 }

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Signup</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #f7f9fc;
+    }
+
+    .container {
+      max-width: 500px;
+      margin-top: 50px;
+    }
+
+    .form-title {
+      margin-bottom: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .toggle-link {
+      color: #007bff;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .toggle-link:hover {
+      text-decoration: underline;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Login Form -->
+    <div id="login-form" class="form-container">
+      <h2 class="form-title">Login</h2>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" id="username" class="form-control" placeholder="Enter your username" required />
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" id="password" class="form-control" placeholder="Enter your password" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+        <p class="mt-3 text-center">
+          Don't have an account? <span class="toggle-link" onclick="toggleForm()">Sign Up</span>
+        </p>
+      </form>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signup-form" class="form-container d-none">
+      <h2 class="form-title">Sign Up</h2>
+      <div class="mb-3">
+        <label for="role" class="form-label">Select Role:</label>
+        <select id="role" class="form-select" onchange="toggleRoleForm()">
+          <option value="">--Select Role--</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+        </select>
+      </div>
+
+      <!-- Student Form -->
+      <form id="student-form" class="hidden" onsubmit="registerStudent(event)">
+        <h3>Student Registration</h3>
+        <div class="mb-3">
+          <label for="student-username" class="form-label">Username</label>
+          <input type="text" id="student-username" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="student-password" class="form-label">Password</label>
+          <input type="password" id="student-password" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="student-firstname" class="form-label">First Name</label>
+          <input type="text" id="student-firstname" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="student-lastname" class="form-label">Last Name</label>
+          <input type="text" id="student-lastname" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="student-dob" class="form-label">Date of Birth</label>
+          <input type="date" id="student-dob" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="student-phone" class="form-label">Phone Number</label>
+          <input type="text" id="student-phone" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="student-email" class="form-label">Email</label>
+          <input type="email" id="student-email" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="student-address" class="form-label">Address</label>
+          <input type="text" id="student-address" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="parent-name" class="form-label">Parent's Name</label>
+          <input type="text" id="parent-name" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="parent-phone" class="form-label">Parent's Phone Number</label>
+          <input type="text" id="parent-phone" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Register as Student</button>
+      </form>
+
+      <!-- Teacher Form -->
+      <form id="teacher-form" class="hidden" onsubmit="registerTeacher(event)">
+        <h3>Teacher Registration</h3>
+        <div class="mb-3">
+          <label for="teacher-username" class="form-label">Username</label>
+          <input type="text" id="teacher-username" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="teacher-password" class="form-label">Password</label>
+          <input type="password" id="teacher-password" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="teacher-firstname" class="form-label">First Name</label>
+          <input type="text" id="teacher-firstname" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="teacher-lastname" class="form-label">Last Name</label>
+          <input type="text" id="teacher-lastname" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="teacher-specialization" class="form-label">Specialization</label>
+          <input type="text" id="teacher-specialization" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="teacher-phone" class="form-label">Phone Number</label>
+          <input type="text" id="teacher-phone" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="teacher-email" class="form-label">Email</label>
+          <input type="email" id="teacher-email" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Register as Teacher</button>
+      </form>
+
+      <p class="mt-3 text-center">
+        Already have an account? <span class="toggle-link" onclick="toggleForm()">Login</span>
+      </p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+  <script>
+    // Toggle Forms
+    function toggleForm() {
+      document.getElementById('login-form').classList.toggle('d-none');
+      document.getElementById('signup-form').classList.toggle('d-none');
+    }
+
+    function toggleRoleForm() {
+      const role = document.getElementById('role').value;
+      document.getElementById('student-form').classList.add('hidden');
+      document.getElementById('teacher-form').classList.add('hidden');
+
+      if (role === 'student') {
+        document.getElementById('student-form').classList.remove('hidden');
+      } else if (role === 'teacher') {
+        document.getElementById('teacher-form').classList.remove('hidden');
+      }
+    }
+
+    // Register Student
+    async function registerStudent(event) {
+      event.preventDefault();
+      const data = {
+        userName: document.getElementById('student-username').value,
+        password: document.getElementById('student-password').value,
+        firstName: document.getElementById('student-firstname').value,
+        lastName: document.getElementById('student-lastname').value,
+        dateOfBirth: document.getElementById('student-dob').value,
+        phoneNumber: document.getElementById('student-phone').value,
+        email: document.getElementById('student-email').value,
+        address: document.getElementById('student-address').value,
+        parentName: document.getElementById('parent-name').value,
+        parentPhoneNumber: document.getElementById('parent-phone').value,
+
+
+      };
+      try {
+        await axios.post('http://localhost:5023/api/auth/register/student', data);
+        alert('Registration successful!');
+        toggleForm();
+        clearStudentForm();
+      } catch (error) {
+        alert('Error during registration.');
+      }
+      
+    }
+
+    // Register Teacher
+    async function registerTeacher(event) {
+      event.preventDefault();
+      const data = {
+        userName: document.getElementById('teacher-username').value,
+        password: document.getElementById('teacher-password').value,
+        firstName: document.getElementById('teacher-firstname').value,
+        specialization: document.getElementById('teacher-specialization').value,
+        phoneNumber: document.getElementById('teacher-phone').value,
+        email: document.getElementById('teacher-email').value,
+
+      };
+      try {
+        await axios.post('http://localhost:5023/api/auth/register/teacher', data);
+        alert('Registration successful!');
+        toggleForm();
+        clearTeacherForm();
+      } catch (error) {
+        alert('Error during registration.');
+      }
+      
+    }
+    function clearStudentForm() {
+      document.getElementById('role').value = '--Select Role--';
+      document.getElementById('student-username').value = '';
+      document.getElementById('student-password').value = '';
+      document.getElementById('student-firstname').value = '';
+      document.getElementById('student-lastname').value = '';
+      document.getElementById('student-dob').value = '';
+      document.getElementById('student-phone').value = '';
+      document.getElementById('student-email').value = '';
+      document.getElementById('student-address').value = '';
+      document.getElementById('parent-name').value = '';
+      document.getElementById('parent-phone').value = '';
+    }
+
+    function clearTeacherForm() {
+      document.getElementById('role').value = '--Select Role--';
+      document.getElementById('teacher-username').value = '';
+      document.getElementById('teacher-password').value = '';
+      document.getElementById('teacher-firstname').value = '';
+      document.getElementById('teacher-specialization').value = '';
+      document.getElementById('teacher-phone').value = '';
+      document.getElementById('teacher-email').value = '';
+    }
+  </script>
+</body>
+</html>

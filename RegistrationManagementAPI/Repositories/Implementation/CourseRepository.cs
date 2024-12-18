@@ -38,10 +38,11 @@ namespace RegistrationManagementAPI.Repositories.Implementation
             return course;
         }
 
-        public async Task UpdateCourseAsync(Course course)
+        public async Task<Course> UpdateCourseAsync(Course course)
         {
             _context.Courses.Update(course);
             await _context.SaveChangesAsync();
+            return course;
         }
 
         public async Task DeleteCourseAsync(int id)
@@ -52,6 +53,15 @@ namespace RegistrationManagementAPI.Repositories.Implementation
                 _context.Courses.Remove(course);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<IEnumerable<Course>> GetFeaturedCoursesAsync()
+        {
+            return await _context.Courses
+                                 .OrderByDescending(c => c.ViewCount) // Sắp xếp theo lượt truy cập giảm dần
+                                 .Take(5)                             // Lấy 5 khóa học
+                                 .Include(c => c.Teacher)             // Bao gồm thông tin giảng viên nếu cần
+                                 .ToListAsync();
         }
     }
 }

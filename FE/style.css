@@ -1,0 +1,76 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+header {
+    background: #0078d7;
+    color: #fff;
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+header nav a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 15px;
+}
+
+header nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 2rem;
+}
+
+.course-details {
+    display: flex;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+}
+
+.course-image img {
+    width: 300px;
+    height: auto;
+    object-fit: cover;
+    border-right: 2px solid #ddd;
+}
+
+.course-info {
+    padding: 2rem;
+    flex: 1;
+}
+
+.course-info h2 {
+    color: #0078d7;
+    margin-bottom: 1rem;
+}
+
+.course-info p {
+    margin-bottom: 0.8rem;
+}
+
+footer {
+    text-align: center;
+    padding: 1rem 0;
+    background: #ddd;
+    color: #333;
+}
